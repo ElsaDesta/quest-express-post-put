@@ -1,4 +1,4 @@
-// dotenv loads parameters (port and database config) from .env
+
 require('dotenv').config();
 const express = require('express');
 const bodyParser = require('body-parser');
@@ -23,6 +23,39 @@ app.get('/api/users', (req, res) => {
       res.json(results);
     }
   });
+});
+
+
+app.post('/api/users', (req, res) => {
+  
+  const { email, password, name } = req.body;
+if (!email || !password || !name) {
+  return res.status(422).json({
+    error: 'at least one of the required fields is missing'
+  });
+}
+
+
+const emailRegex = /[a-z0-9._]+@[a-z0-9-]+\.[a-z]{2,3}/;
+if (!emailRegex.test(email)) {
+  return res.status(422).json({
+    error: 'Invalid email',
+  });
+}
+
+
+  
+  connection.query('INSERT INTO user SET ?', req.body, (err, results) => {
+    if(err) {
+      res.status(500).json({
+        error: err.message,
+        sql: err.sql
+      });
+    } else {
+      res.json(results);
+    }
+  });
+
 });
 
 app.listen(process.env.PORT, (err) => {
